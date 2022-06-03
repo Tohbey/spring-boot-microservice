@@ -33,7 +33,7 @@ Note: A service need to be registered with eureka discovery service before it ca
 
 - New Starting up process
     - Discover Service.
-    - Spring CLoud API Gateway Service.
+    - Spring Cloud API Gateway Service.
     - User Service.
     - Account Management Service.
     - To view the eureka UI -> http://localhost:8010/dashboard
