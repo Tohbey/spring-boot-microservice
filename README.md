@@ -31,7 +31,6 @@ Note: A service need to be registered with eureka discovery service before it ca
 
 - Spring Cloud API Gateway Service setup: https://github.com/Tohbey/spring-boot-microservice/tree/main/DiscoveryService
 
-
 - New Starting up process
     - Discover Service.
     - Spring CLoud API Gateway Service.
@@ -45,3 +44,15 @@ Note: A service need to be registered with eureka discovery service before it ca
 	- get the controller url i.e /user
 	- get the request mapping to a particular method i.e /status/check
 i.e http://localhost:8082/user-ws/user/status/check
+
+
+- Load Balancer in microservice:
+	- It helps to distribute reuqest coming from the client application equally between running instances of a service.
+	- It prevent overloading on a particular instance of a service.
+	- is the process of sharing, incoming network traffic in concurrent or discrete time between servers called a server farm or server pool.
+	- Adding eureka instance id to your service, helps eureka distinguse between the different running instances.
+	![image](https://user-images.githubusercontent.com/33703095/171837127-873efa9d-9b04-4f5d-aab3-b7351132f7f0.png)
+	
+- setting up multiple instances on your microservice.
+	- Note: discovery and API gateway service only run on one instance.
+	- https://github.com/Tohbey/spring-boot-microservice/commit/e4d90d37174ccd96bf18eb2c2a230c8e26a968ef
