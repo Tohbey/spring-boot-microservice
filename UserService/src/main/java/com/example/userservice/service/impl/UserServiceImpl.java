@@ -1,86 +1,123 @@
 package com.example.userservice.service.impl;
 
+import com.example.userservice.controller.UsersController;
 import com.example.userservice.dao.UserDao;
 import com.example.userservice.dto.UserDto;
-import com.example.userservice.entity.UserEntity;
+import com.example.userservice.entity.User;
+import com.example.userservice.exceptions.NotFoundException;
+import com.example.userservice.mapper.UserMapper;
 import com.example.userservice.service.UserService;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.UUID;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
 
     UserDao usersRepository;
-    BCryptPasswordEncoder bCryptPasswordEncoder;
-    Environment environment;
+    private UserMapper userMapper;
+    private Environment env;
+
+
+    final String alphabet = "0123456789ABCDE";
+    final int N = alphabet.length();
+
+    public UserServiceImpl(UserDao usersRepository, UserMapper userMapper, Environment env) {
+        this.usersRepository = usersRepository;
+        this.userMapper = userMapper;
+        this.env = env;
+    }
 
     Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public UserServiceImpl(UserDao usersRepository,
-                            BCryptPasswordEncoder bCryptPasswordEncoder,
-                            Environment environment)
-    {
-        this.usersRepository = usersRepository;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-        this.environment = environment;
+    @Override
+    public List<UserDto> getAllUser() {
+        List<User> users = (List<User>) this.usersRepository.findAll();
+        return users.stream().map(
+                        user -> {
+                            UserDto userDTO = userMapper.userToUserDTO(user);
+                            userDTO.setUserUrl(getUserUrl(user.getId()));
+                            userDTO.setFullName(returnUserFullName(user));
+
+                            return userDTO;
+                        }
+                ).collect(Collectors.toList());
     }
 
     @Override
-    public UserDto createUser(UserDto userDetails) {
-        // TODO Auto-generated method stub
+    public Optional<UserDto> getUser(Long id) {
+        Optional<User> user = this.usersRepository.findById(id);
 
-        userDetails.setUserId(UUID.randomUUID().toString());
-        userDetails.setEncryptedPassword(bCryptPasswordEncoder.encode(userDetails.getPassword()));
+        if (user.isEmpty()) {
+            throw new NotFoundException("User Not Found. for ID value " + id);
+        }
 
-        ModelMapper modelMapper = new ModelMapper();
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-
-        UserEntity userEntity = modelMapper.map(userDetails, UserEntity.class);
-
-        usersRepository.save(userEntity);
-
-        UserDto returnValue = modelMapper.map(userEntity, UserDto.class);
-
-        return returnValue;
+        return user.map(userMapper::userToUserDTO)
+                .map(userDTO -> {
+                    userDTO.setUserUrl(getUserUrl(user.get().getId()));
+                    userDTO.setFullName(returnUserFullName(user.get()));
+                    return userDTO;
+                });
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserEntity userEntity = usersRepository.findByEmail(username);
+    public UserDto save(User user) throws Exception {
+        Optional<User> checkUer = this.usersRepository.findByEmail(user.getEmail());
+        if (checkUer.isPresent()) {
+            throw new Exception("A user with this email already exist " + checkUer.get().getEmail());
+        }
 
-        if(userEntity == null) throw new UsernameNotFoundException(username);
-
-        return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(), true, true, true, true, new ArrayList<>());
+        return saveAndReturnDTO(user);
     }
 
     @Override
-    public UserDto getUserDetailsByEmail(String email) {
-        UserEntity userEntity = usersRepository.findByEmail(email);
-
-        if(userEntity == null) throw new UsernameNotFoundException(email);
-
-
-        return new ModelMapper().map(userEntity, UserDto.class);
+    public void delete(long id) {
+        this.usersRepository.deleteById(id);
     }
 
     @Override
-    public UserDto getUserByUserId(String userId) {
-        UserEntity userEntity = usersRepository.findByUserId(userId);
-        if(userEntity == null) throw new UsernameNotFoundException("User not found");
+    public Optional<UserDto> update(User user, long id) {
+        Optional<User> currentUser = this.usersRepository.findById(id);
+        if (currentUser.isEmpty()) {
+            throw new NotFoundException("User Not Found. for ID value" + id);
+        }
 
-        UserDto userDto = new ModelMapper().map(userEntity, UserDto.class);
+        return currentUser.map(user1 -> {
+            if (user.getEmail() != null) {
+                user1.setEmail(user.getEmail());
+            }
 
-        return userDto;
+
+            if (user.getIsActive() == 0 || user.getIsActive() == 1) {
+                user1.setIsActive(user.getIsActive());
+            }
+
+            return saveAndReturnDTO(user1);
+        });
+    }
+
+    private UserDto saveAndReturnDTO(User user) {
+        User savedUser = this.usersRepository.save(user);
+
+        UserDto returnDTO = userMapper.userToUserDTO(savedUser);
+
+        returnDTO.setFullName(returnUserFullName(savedUser));
+        returnDTO.setUserUrl(getUserUrl(savedUser.getId()));
+
+        return returnDTO;
+    }
+
+
+    private String getUserUrl(long id) {
+        return UsersController.BASE_URL + "/" + id;
+    }
+
+    private String returnUserFullName(User user) {
+        return user.getLastName() + " " + user.getFirstName();
     }
 }

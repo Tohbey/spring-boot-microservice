@@ -4,11 +4,12 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 @Entity
 @Table(name="users")
 @Data
-public class UserEntity implements Serializable {
+public class User implements Serializable {
     private static final long serialVersionUID = -2731425678149216053L;
 
     @Id
@@ -29,4 +30,10 @@ public class UserEntity implements Serializable {
 
     @Column(nullable=false, unique=true)
     private String encryptedPassword;
+
+    private Integer isActive;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private List<Role> roles;
 }
