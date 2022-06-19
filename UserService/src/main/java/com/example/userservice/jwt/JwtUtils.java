@@ -11,16 +11,16 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 @Component
 public class JwtUtils {
 
-    @Autowired
-    private Environment env;
+    @Value("${token.secret}")
+    private String token;
 
-    private final String SECRET_KEY = env.getProperty("token.secret");
     //extracts the username from the token
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -37,8 +37,8 @@ public class JwtUtils {
         return claimResolver.apply(claims);
     }
 
-    private Claims extractAllClaims(String token) {
-        return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
+    private Claims extractAllClaims(String authToken) {
+        return Jwts.parser().setSigningKey(token).parseClaimsJws(authToken).getBody();
     }
 
     private Boolean isTokenExpired(String token) {
@@ -55,7 +55,7 @@ public class JwtUtils {
     private String createToken(Map<String, Object> claims, String subject) {
         return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
-                .signWith(SignatureAlgorithm.HS512, SECRET_KEY).compact();
+                .signWith(SignatureAlgorithm.HS512, token).compact();
     }
 
     public Boolean validateToken(String token, CustomDetail userDetails) {

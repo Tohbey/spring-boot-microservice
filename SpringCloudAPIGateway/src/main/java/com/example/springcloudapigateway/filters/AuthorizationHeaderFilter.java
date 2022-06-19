@@ -2,6 +2,7 @@ package com.example.springcloudapigateway.filters;
 
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.core.env.Environment;
@@ -16,8 +17,8 @@ import reactor.core.publisher.Mono;
 @Component
 public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<AuthorizationHeaderFilter.Config> {
 
-    @Autowired
-    Environment env;
+    @Value("${token.secret}")
+    private String token;
 
     public AuthorizationHeaderFilter() {
         super(Config.class);
@@ -61,7 +62,7 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
         String subject = null;
 
         try {
-            subject = Jwts.parser().setSigningKey(env.getProperty("token.secret")).parseClaimsJws(jwt).getBody()
+            subject = Jwts.parser().setSigningKey(token).parseClaimsJws(jwt).getBody()
                     .getSubject();
         } catch (Exception ex) {
             returnValue = false;
