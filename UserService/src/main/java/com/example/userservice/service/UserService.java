@@ -9,7 +9,7 @@ import java.util.Optional;
 public interface UserService{
     List<UserDto> getAllUser();
 
-    Optional<UserDto> getUser(Long id);
+    Optional<UserDto> getUser(Long id) throws Exception;
 
     UserDto save(User user) throws Exception;
 

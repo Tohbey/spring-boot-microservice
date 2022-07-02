@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
+
 @RestController
 @RequestMapping(AuthenticationController.BASE_URL)
 public class AuthenticationController {
@@ -26,7 +28,7 @@ public class AuthenticationController {
         ResponseObject responseObject = new ResponseObject();
         try {
             AuthenticationResponse response = this.authenticationService.createAuthenticationToken(authenticationRequest);
-            responseObject.setData(response);
+            responseObject.setData(Collections.singletonList(response));
             responseObject.setValid(true);
             responseObject.setMessage("Login Successfully");
         } catch (Exception e) {

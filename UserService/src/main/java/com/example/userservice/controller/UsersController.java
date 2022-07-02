@@ -9,12 +9,14 @@ import com.example.userservice.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,6 +28,8 @@ public class UsersController {
     @Autowired
     private Environment environment;
 
+    @Value("${local.server.port}")
+    private String port;
 
     private final UserService userService;
     public static final String BASE_URL = "/api/v1/user";
@@ -40,7 +44,7 @@ public class UsersController {
 
     @GetMapping("/status/check")
     public String status(){
-        return "Working on port "+environment.getProperty("local.server.port");
+        return "Working on port "+port;
     }
 
     @RequestMapping(method = RequestMethod.GET)
@@ -48,7 +52,7 @@ public class UsersController {
         ResponseObject object = new ResponseObject();
         try {
             List<UserDto> userList = userService.getAllUser();
-            object.setData(new UserListDto(userList));
+            object.setData(Collections.singletonList(new UserListDto(userList)));
             object.setValid(true);
             object.setMessage("Resource Retrieved Successfully");
         } catch (Exception e) {
@@ -64,7 +68,7 @@ public class UsersController {
         ResponseObject responseObject = new ResponseObject();
         try {
             Optional<UserDto> userDTO = userService.getUser(id);
-            responseObject.setData(userDTO);
+            responseObject.setData(Collections.singletonList(userDTO));
             responseObject.setValid(true);
             responseObject.setMessage("Resource Retrieved Successfully");
         } catch (Exception e) {
@@ -84,7 +88,7 @@ public class UsersController {
             user.setEncryptedPassword(encryptPwd);
 
             UserDto userDTO = userService.save(user);
-            responseObject.setData(userDTO);
+            responseObject.setData(Collections.singletonList(userDTO));
             responseObject.setValid(true);
             responseObject.setMessage("Resource Created Successfully");
         } catch (Exception e) {
@@ -115,7 +119,7 @@ public class UsersController {
         ResponseObject responseObject = new ResponseObject();
         try {
             Optional<UserDto> userDTO = userService.update(user, id);
-            responseObject.setData(userDTO);
+            responseObject.setData(Collections.singletonList(userDTO));
             responseObject.setValid(true);
             responseObject.setMessage("Resource Updated Successfully");
         } catch (Exception e) {
