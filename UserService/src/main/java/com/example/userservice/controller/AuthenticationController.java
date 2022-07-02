@@ -24,8 +24,8 @@ public class AuthenticationController {
     }
 
     @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<ResponseObject> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
-        ResponseObject responseObject = new ResponseObject();
+    public ResponseEntity<ResponseObject<AuthenticationResponse>> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
+        ResponseObject<AuthenticationResponse> responseObject = new ResponseObject<AuthenticationResponse>();
         try {
             AuthenticationResponse response = this.authenticationService.createAuthenticationToken(authenticationRequest);
             responseObject.setData(Collections.singletonList(response));

@@ -3,11 +3,8 @@ package com.example.userservice.controller;
 import com.example.userservice.dto.ResponseObject;
 import com.example.userservice.dto.UserDto;
 import com.example.userservice.dto.UserListDto;
-import com.example.userservice.dto.UserResponse;
 import com.example.userservice.entity.User;
 import com.example.userservice.service.UserService;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
@@ -48,8 +45,8 @@ public class UsersController {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<ResponseObject> getAllUsers() {
-        ResponseObject object = new ResponseObject();
+    public ResponseEntity<ResponseObject<UserListDto>> getAllUsers() {
+        ResponseObject<UserListDto> object = new ResponseObject<>();
         try {
             List<UserDto> userList = userService.getAllUser();
             object.setData(Collections.singletonList(new UserListDto(userList)));
@@ -64,8 +61,8 @@ public class UsersController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public ResponseEntity<ResponseObject> getUserById(@PathVariable long id) {
-        ResponseObject responseObject = new ResponseObject();
+    public ResponseEntity<ResponseObject<Optional<UserDto>>> getUserById(@PathVariable long id) {
+        ResponseObject<Optional<UserDto>> responseObject = new ResponseObject<>();
         try {
             Optional<UserDto> userDTO = userService.getUser(id);
             responseObject.setData(Collections.singletonList(userDTO));
@@ -80,8 +77,8 @@ public class UsersController {
     }
 
     @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<ResponseObject> insertUser(@RequestBody User user) {
-        ResponseObject responseObject = new ResponseObject();
+    public ResponseEntity<ResponseObject<UserDto>> insertUser(@RequestBody User user) {
+        ResponseObject<UserDto> responseObject = new ResponseObject<>();
         try {
             String pwd = user.getEncryptedPassword();
             String encryptPwd = this.passwordEncoder.encode(pwd);
@@ -100,8 +97,8 @@ public class UsersController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<ResponseObject> deleteUser(@PathVariable long id) {
-        ResponseObject responseObject = new ResponseObject();
+    public ResponseEntity<ResponseObject<String>> deleteUser(@PathVariable long id) {
+        ResponseObject<String> responseObject = new ResponseObject<>();
         try {
             userService.delete(id);
             responseObject.setValid(true);
@@ -115,8 +112,8 @@ public class UsersController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
-    public ResponseEntity<ResponseObject> updateUser(@PathVariable long id, @RequestBody User user) {
-        ResponseObject responseObject = new ResponseObject();
+    public ResponseEntity<ResponseObject<Optional<UserDto>>> updateUser(@PathVariable long id, @RequestBody User user) {
+        ResponseObject<Optional<UserDto>> responseObject = new ResponseObject<Optional<UserDto>>();
         try {
             Optional<UserDto> userDTO = userService.update(user, id);
             responseObject.setData(Collections.singletonList(userDTO));
