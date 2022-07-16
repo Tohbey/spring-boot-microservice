@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
     final String alphabet = "0123456789ABCDE";
     final int N = alphabet.length();
 
-    @Value("${}")
+    @Value("${albums.url}")
     private String albumUri;
 
     public UserServiceImpl(UserDao usersRepository, UserMapper userMapper) {

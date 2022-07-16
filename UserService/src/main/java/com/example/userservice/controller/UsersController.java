@@ -23,10 +23,7 @@ import java.util.Optional;
 public class UsersController {
 
     @Autowired
-    private Environment environment;
-
-    @Value("${local.server.port}")
-    private String port;
+    Environment environment;
 
     private final UserService userService;
     public static final String BASE_URL = "/api/v1/user";
@@ -41,7 +38,7 @@ public class UsersController {
 
     @GetMapping("/status/check")
     public String status(){
-        return "Working on port "+port;
+        return "Working on port "+environment.getProperty("server.port");
     }
 
     @RequestMapping(method = RequestMethod.GET)
