@@ -7,10 +7,12 @@ import com.example.albumservice.service.AlbumService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
 import java.util.List;
 
@@ -20,9 +22,7 @@ import java.util.List;
 public class AlbumController {
 
     @Autowired
-    private Environment environment;
-    @Value("${local.server.port}")
-    private String port;
+    Environment environment;
 
     private final AlbumService albumService;
     public static final String BASE_URL = "/api/v1/album";
@@ -34,7 +34,7 @@ public class AlbumController {
 
     @GetMapping("/status/check")
     public String status(){
-        return "Working on port "+port;
+        return "Working on port "+environment.getProperty("server.port");
     }
 
     @RequestMapping(method = RequestMethod.GET)
