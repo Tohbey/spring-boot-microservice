@@ -8,6 +8,7 @@ import com.example.userservice.dto.UserDto;
 import com.example.userservice.entity.User;
 import com.example.userservice.exceptions.NotFoundException;
 import com.example.userservice.mapper.UserMapper;
+import com.example.userservice.service.AlbumServiceClient;
 import com.example.userservice.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +19,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,8 +30,7 @@ public class UserServiceImpl implements UserService {
 
     UserDao usersRepository;
     private UserMapper userMapper;
-    RestTemplate restTemplate;
-
+    private AlbumServiceClient albumServiceClient;
 
     final String alphabet = "0123456789ABCDE";
     final int N = alphabet.length();
@@ -39,9 +38,10 @@ public class UserServiceImpl implements UserService {
     @Value("${albums.url}")
     private String albumUri;
 
-    public UserServiceImpl(UserDao usersRepository, UserMapper userMapper) {
+    public UserServiceImpl(UserDao usersRepository, UserMapper userMapper, AlbumServiceClient albumServiceClient) {
         this.usersRepository = usersRepository;
         this.userMapper = userMapper;
+        this.albumServiceClient = albumServiceClient;
     }
 
     Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -70,8 +70,8 @@ public class UserServiceImpl implements UserService {
         }
 
         try {
-            ResponseEntity<AlbumResponse> response = restTemplate.exchange(albumUri,HttpMethod.GET, null, AlbumResponse.class);
-            albumDTOList = response.getBody().getData();
+            AlbumResponse response = albumServiceClient.getAlbums(user.get().getId());
+            albumDTOList = response.getData();
         }catch (HttpStatusCodeException e){
             throw new Exception(e);
         }
