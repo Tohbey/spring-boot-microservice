@@ -11,16 +11,16 @@ import com.example.userservice.mapper.UserMapper;
 import com.example.userservice.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -30,6 +30,7 @@ public class UserServiceImpl implements UserService {
 
     UserDao usersRepository;
     private UserMapper userMapper;
+    @Autowired
     RestTemplate restTemplate;
 
 
@@ -69,8 +70,11 @@ public class UserServiceImpl implements UserService {
             throw new NotFoundException("User Not Found. for ID value " + id);
         }
 
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+        HttpEntity<AlbumResponse> entity = new HttpEntity<AlbumResponse>(headers);
         try {
-            ResponseEntity<AlbumResponse> response = restTemplate.exchange(albumUri,HttpMethod.GET, null, AlbumResponse.class);
+            ResponseEntity<AlbumResponse> response = restTemplate.exchange(albumUri+user.get().getUserId(),HttpMethod.GET,entity,AlbumResponse.class);
             albumDTOList = response.getBody().getData();
         }catch (HttpStatusCodeException e){
             throw new Exception(e);
