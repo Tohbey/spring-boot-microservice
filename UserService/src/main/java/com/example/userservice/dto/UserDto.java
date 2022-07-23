@@ -15,8 +15,6 @@ public class UserDto implements Serializable {
     private String fullName;
     private String userUrl;
     private String email;
-    private String password;
     private String userId;
-    private String encryptedPassword;
     private List<AlbumDTO> albums;
 }
