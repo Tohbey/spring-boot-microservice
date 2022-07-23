@@ -69,12 +69,8 @@ public class UserServiceImpl implements UserService {
             throw new NotFoundException("User Not Found. for ID value " + id);
         }
 
-        try {
-            AlbumResponse response = albumServiceClient.getAlbums(user.get().getId());
-            albumDTOList = response.getData();
-        }catch (HttpStatusCodeException e){
-            throw new Exception(e);
-        }
+        AlbumResponse response = albumServiceClient.getAlbums(String.valueOf(user.get().getId()));
+        albumDTOList = response.getData();
 
         Optional<UserDto> userDto = user.map(userMapper::userToUserDTO)
                 .map(userDTO -> {
