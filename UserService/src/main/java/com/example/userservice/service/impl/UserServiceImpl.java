@@ -3,7 +3,6 @@ package com.example.userservice.service.impl;
 import com.example.userservice.controller.UsersController;
 import com.example.userservice.dao.UserDao;
 import com.example.userservice.dto.AlbumDTO;
-import com.example.userservice.dto.AlbumResponse;
 import com.example.userservice.dto.UserDto;
 import com.example.userservice.entity.User;
 import com.example.userservice.exceptions.NotFoundException;
@@ -13,10 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
-import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
@@ -70,15 +66,6 @@ public class UserServiceImpl implements UserService {
             throw new NotFoundException("User Not Found. for ID value " + id);
         }
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-        HttpEntity<AlbumResponse> entity = new HttpEntity<AlbumResponse>(headers);
-        try {
-            ResponseEntity<AlbumResponse> response = restTemplate.exchange(albumUri+user.get().getId(),HttpMethod.GET,entity,AlbumResponse.class);
-            albumDTOList = response.getBody().getData();
-        }catch (HttpStatusCodeException e){
-            throw new Exception(e);
-        }
 
         Optional<UserDto> userDto = user.map(userMapper::userToUserDTO)
                 .map(userDTO -> {
@@ -87,7 +74,6 @@ public class UserServiceImpl implements UserService {
                     return userDTO;
                 });
 
-        userDto.get().setAlbums(albumDTOList);
 
         return userDto;
     }
