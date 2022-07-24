@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import java.util.ArrayList;
 import java.util.List;
 
-@FeignClient(name = "ALBUM-WS",url = "${albums.url}", fallbackFactory  = AlbumServiceClient.AlbumsFallbackFactory.class)
+@FeignClient(name = "ALBUM-WS", fallbackFactory  = AlbumServiceClient.AlbumsFallbackFactory.class)
 public interface AlbumServiceClient {
-    @GetMapping("/users/{id}")
+    @GetMapping("/api/v1/album/user/{id}")
     AlbumResponse getAlbums(@PathVariable String id);
 
     @Component
