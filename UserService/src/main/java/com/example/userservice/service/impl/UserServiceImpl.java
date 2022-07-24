@@ -73,6 +73,7 @@ public class UserServiceImpl implements UserService {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
         HttpEntity<AlbumResponse> entity = new HttpEntity<AlbumResponse>(headers);
+
         try {
             ResponseEntity<AlbumResponse> response = restTemplate.exchange(albumUri+user.get().getId(),HttpMethod.GET,entity,AlbumResponse.class);
             albumDTOList = response.getBody().getData();
